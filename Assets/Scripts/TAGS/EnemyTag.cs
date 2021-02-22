@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 [GenerateAuthoringComponent]
-public struct PlayerModelTag : IComponentData
+public struct EnemyTag : IComponentData
 {
+    public bool isStopped;
 }

@@ -2,4 +2,5 @@
 [GenerateAuthoringComponent]
 public struct BulletTag : IComponentData
 {
+    public float timer;
 }

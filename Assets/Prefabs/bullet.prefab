@@ -116,8 +116,8 @@ MonoBehaviour:
     y: 0
     z: 0
   m_PrimitiveSize:
-    x: 1
-    y: 1
+    x: 0.2
+    y: 0.1
     z: 1
   m_PrimitiveOrientation:
     Value:
@@ -127,11 +127,11 @@ MonoBehaviour:
     RotationOrder: 4
   m_Capsule:
     Height: 1
-    Radius: 0.5
+    Radius: 0.1
     Axis: 2
   m_Cylinder:
     Height: 1
-    Radius: 0.5
+    Radius: 0.1
     Axis: 2
   m_CylinderSideCount: 20
   m_SphereRadius: 0.5
@@ -316,3 +316,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6326abf2c751f245b2340635178b1e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timer: 5

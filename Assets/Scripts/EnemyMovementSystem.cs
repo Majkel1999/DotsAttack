@@ -12,26 +12,53 @@ public static class Bit
 public class EnemyMovementSystem : MonoBehaviour
 {
     [SerializeField] GameObject enemyPrefab;
+
+    private Entity enemyEntity;
+    private EntityManager entityManager;
+    private BlobAssetStore blobAssetStore;
+    private GameObjectConversionSettings gameObjectConversionSettings;
     private float timer = 1.0f;
-    private void Update()
+    private void Start()
+    {
+        entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        blobAssetStore = new BlobAssetStore();
+        gameObjectConversionSettings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, blobAssetStore);
+        enemyEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(enemyPrefab, gameObjectConversionSettings);
+    }
+
+    private void FixedUpdate()
     {
         timer -= Time.deltaTime;
         if (timer <= 0)
         {
-            timer = 1.0f;
-            Instantiate(enemyPrefab, new Vector3(-10f, UnityEngine.Random.Range(-4.5f, 4.5f), 0), new Quaternion());
+            timer = 0.1f;
+            //for (int i = 0; i < 5; i++)
+            {
+
+                Entity e = entityManager.Instantiate(enemyEntity);
+                entityManager.SetComponentData(e, new Translation
+                {
+                    Value = new float3(-10f, UnityEngine.Random.Range(-4.5f, 4.5f), 0)
+                });
+            }
         }
     }
+    private void OnDisable()
+    {
+        blobAssetStore.Dispose();
+    }
 }
+
 public class MoveSystem : SystemBase
 {
-    [SerializeField] float moveSpeed = 1f;
+    //[SerializeField] float moveSpeed = 1f;
     protected override void OnUpdate()
     {
         if (!Bit.isPause)
         {
             EntityCommandBuffer command = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>().CreateCommandBuffer();
-            Entities.WithAll<PlayerModelTag>().ForEach((Entity e, ref PhysicsVelocity physicsVelocity, ref Translation translation) =>
+
+            Entities.ForEach((Entity e, ref PhysicsVelocity physicsVelocity, ref Translation translation, ref EnemyTag enemyTag) =>
             {
                 float3 speed = new float3(8.5f, 0f, 0f) - translation.Value;
                 speed = speed / Mathf.Sqrt(Mathf.Pow(speed.x, 2) + Mathf.Pow(speed.y, 2));
@@ -41,11 +68,21 @@ public class MoveSystem : SystemBase
                     command.DestroyEntity(e);
                 }
             }).Run();
+
+            Entities.ForEach((Entity e, ref BulletTag bulletTag) =>
+            {
+                bulletTag.timer -= Time.DeltaTime;
+                if (bulletTag.timer <= 0.0f)
+                {
+                    command.DestroyEntity(e);
+                }
+            }).WithoutBurst().Run();
         }
         else
         {
-            Entities.WithAll<PlayerModelTag>().ForEach((ref PhysicsVelocity physicsVelocity) =>
+            Entities.ForEach((ref PhysicsVelocity physicsVelocity, ref EnemyTag enemyTag) =>
             {
+                enemyTag.isStopped = false;
                 physicsVelocity.Linear = new float3(0, 0, 0);
             }).Run();
         }

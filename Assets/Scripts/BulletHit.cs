@@ -20,11 +20,12 @@ public class BulletHit : JobComponentSystem
         stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
 
     }
+
     [BurstCompile]
     struct BulletHitTriggerSystemJob : ITriggerEventsJob
     {
         [ReadOnly] public ComponentDataFromEntity<BulletTag> allBullets;
-        [ReadOnly] public ComponentDataFromEntity<PlayerModelTag> allEnemies;
+        [ReadOnly] public ComponentDataFromEntity<EnemyTag> allEnemies;
         [WriteOnly] public EntityCommandBuffer command;
 
 
@@ -44,10 +45,8 @@ public class BulletHit : JobComponentSystem
     {
         var job = new BulletHitTriggerSystemJob();
         job.allBullets = GetComponentDataFromEntity<BulletTag>();
-        job.allEnemies = GetComponentDataFromEntity<PlayerModelTag>();
-        var m_EndSimECBSys = World
-            .GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-        job.command = m_EndSimECBSys.CreateCommandBuffer();
+        job.allEnemies = GetComponentDataFromEntity<EnemyTag>();
+        job.command = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>().CreateCommandBuffer();
 
         JobHandle jobHandle = job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, inputDeps);
         jobHandle.Complete();
