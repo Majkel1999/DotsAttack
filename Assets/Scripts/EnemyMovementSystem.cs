@@ -31,7 +31,7 @@ public class EnemyMovementSystem : MonoBehaviour
         timer -= Time.deltaTime;
         if (timer <= 0)
         {
-            timer = 0.1f;
+            timer = 1f;
             //for (int i = 0; i < 5; i++)
             {
 
