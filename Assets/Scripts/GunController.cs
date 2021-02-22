@@ -7,8 +7,8 @@ using UnityEngine;
 public class GunController : MonoBehaviour
 {
     [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float shotSpeed=4;
-
+    [SerializeField] private float shotSpeed = 4;
+    private float shotTimer = 0.1f;
     private Entity bulletEntity;
     private EntityManager entityManager;
     private BlobAssetStore blobAssetStore;
@@ -23,19 +23,24 @@ public class GunController : MonoBehaviour
     void Update()
     {
         Vector3 mousePos = Input.mousePosition;
-        Vector3 destination = mousePos;
-
         Vector3 objectPos = Camera.main.WorldToScreenPoint(transform.position);
         mousePos.x = mousePos.x - objectPos.x;
         mousePos.y = mousePos.y - objectPos.y;
-
+        shotTimer -= Time.deltaTime;
         float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
 
-        if (Input.GetMouseButtonDown(0))
+    }
+    private void FixedUpdate()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        Vector3 objectPos = Camera.main.WorldToScreenPoint(transform.position);
+        mousePos.x = mousePos.x - objectPos.x;
+        mousePos.y = mousePos.y - objectPos.y;
+        if (Input.GetMouseButtonDown(0) && shotTimer <= 0.0f)
         {
             Shoot(mousePos.normalized);
-
+            shotTimer = 0.1f;
         }
     }
 
